@@ -789,7 +789,25 @@ class Select extends Component {
 
     let selectedValueNodes = [];
     if (isMultipleOrTags(props)) {
-      selectedValueNodes = value.map((singleValue) => {
+      let limitedCountValue = value;
+      let maxTagPlaceholder;
+      if (props.maxTagCount && value.length > props.maxTagCount) {
+        limitedCountValue = limitedCountValue.slice(0, props.maxTagCount);
+        const content = props.maxTagPlaceholder || `+ ${value.length - props.maxTagCount} ...`;
+        maxTagPlaceholder = (
+          <li
+            style={UNSELECTABLE_STYLE}
+            {...UNSELECTABLE_ATTRIBUTE}
+            onMouseDown={preventDefaultEvent}
+            className={`${prefixCls}-selection__choice`}
+            key={'maxTagPlaceholder'}
+            title={content}
+          >
+            <span className={`${prefixCls}-selection__choice__content`}>{content}</span>
+          </li>
+        );
+      }
+      selectedValueNodes = limitedCountValue.map((singleValue) => {
         let content = singleValue.label;
         const title = content;
         if (maxTagTextLength && typeof content === 'string' && content.length > maxTagTextLength) {
@@ -812,6 +830,9 @@ class Select extends Component {
           </li>
         );
       });
+      if (maxTagPlaceholder) {
+        selectedValueNodes.push(maxTagPlaceholder);
+      }
     }
     selectedValueNodes.push(<li
       className={`${prefixCls}-search ${prefixCls}-search--inline`}
